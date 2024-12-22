@@ -118,9 +118,9 @@ class Trading_Environment:
 
         self.num_features = len(self.feature_names)
         self.observation_size = window_size - 1
+        self.num_action = 3
 
     def reset(self):
-        self.time_step = 0
         self.last_time_step = len(self.data) - 1
         self.terminated = False
         self.truncated = False
@@ -135,9 +135,9 @@ class Trading_Environment:
         info = self._get_info()
         return state, info
 
-    def next(self, action):
+    def step(self, action):
         self.time_step += 1
-        print(self.time_step)
+        # print(self.time_step)
         if self.time_step >= self.last_time_step:
             self.terminated = True
 
@@ -151,7 +151,7 @@ class Trading_Environment:
             self.inventory.append(buy_price)
             # append time step to states_buy_test
             self.states_buy_test.append(self.time_step)
-            print(f'Buy: {format_price(buy_price)}')
+            # print(f'Buy: {format_price(buy_price)}')
 
         elif action == 2 and len(self.inventory) > 0: # sell
             # get bought price from beginning of inventory
@@ -169,7 +169,7 @@ class Trading_Environment:
                 self.total_losers += profit
             # append time step to states_sell_test
             self.states_sell_test.append(self.time_step)
-            print(f'Sell: {format_price(sell_price)} | Profit: {format_price(sell_price - bought_price)}')
+            # print(f'Sell: {format_price(sell_price)} | Profit: {format_price(sell_price - bought_price)}')
 
         observation = self._get_state(self.data, 
                                       self.time_step, 
@@ -214,16 +214,15 @@ class Trading_Environment:
         
         # once we have our state data, we need to apply the sigmoid to each feature.
         # return an array holding the n-day sigmoid state representation
-        return np.array(res)
+        return np.array(res).flatten()
     
     def _get_info(self):
         current_data = self._get_current_data()
         return {
-            "date": current_data.index,
+            "date": current_data.name,
             "price": current_data['adj_close']
         }
     
-
 
 if __name__ == "__main__":
     csv_file = "data/ftse100.csv"

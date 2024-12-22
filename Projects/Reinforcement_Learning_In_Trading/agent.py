@@ -1,6 +1,7 @@
 # Define DQN Model Architecture
 import numpy as np
-import keras
+# import keras
+import tensorflow as tf
 import random
 from collections import deque
 from matplotlib import pyplot as plt
@@ -9,21 +10,23 @@ import time
 
 import gymnasium as gym
 
+# from dqn import DQN
+
 import os
 # os.environ["TF_USE_LEGACY_KERAS"] = '1'
 
-class DQN(keras.Model):
+class DQN(tf.keras.Model):
     def __init__(self, state_size, action_size, hidden_size=128, lr=0.0001):
         super().__init__()
         # define model layers in keras
-        model = keras.models.Sequential()
-        model.add(keras.Input(shape=(state_size,)))
-        model.add(keras.layers.Dense(hidden_size, activation='relu'))
-        model.add(keras.layers.Dense(hidden_size, activation='relu'))
-        model.add(keras.layers.Dense(action_size, activation='linear'))
+        model = tf.keras.models.Sequential()
+        model.add(tf.keras.Input(shape=(state_size,)))
+        model.add(tf.keras.layers.Dense(hidden_size, activation='relu'))
+        model.add(tf.keras.layers.Dense(hidden_size, activation='relu'))
+        model.add(tf.keras.layers.Dense(action_size, activation='linear'))
 
         # compile model in keras
-        model.compile(loss='mse', optimizer=keras.optimizers.legacy.Adam(learning_rate=lr))
+        model.compile(loss='mse', optimizer=tf.keras.optimizers.legacy.Adam(learning_rate=lr))
         # save model to DQN instance
         self.model = model
 
@@ -46,17 +49,17 @@ class Agent:
         self.epsilon_decay = 0.995
         
         if test_mode:
-            self.model = keras.models.load_model(model_name)
+            self.model = tf.keras.models.load_model(model_name)
         else:
             self.model = DQN(self.state_size, self.action_size).model
-        self.target = keras.models.clone_model(self.model)
+        self.target = tf.keras.models.clone_model(self.model)
         self.target.set_weights(self.model.get_weights())
-        # self.model = keras.models.load_model(model_name) if test_mode else self._model()
+        # self.model = tf.keras.models.load_model(model_name) if test_mode else self._model()
 
     #Deep Q Learning (DQL) model
     # def _model(self):
     #     model = DQN(self.state_size, self.action_size).model
-    #     target = keras.models.clone_model(model)
+    #     target = tf.keras.models.clone_model(model)
     #     target.set_weights(model.get_weights())
     #     return model, target
     
@@ -151,6 +154,7 @@ if __name__ == "__main__":
     print(env.action_space.n)
     print(env.observation_space.shape[0])
     window_size = 1
+    # agent = Agent(env.observation_space.shape, env.action_space.n, window_size)
     agent = Agent(env.observation_space.shape, env.action_space.n, window_size)
     
     
@@ -162,6 +166,7 @@ if __name__ == "__main__":
     total_time_start = time.time()
     
     # time_steps = train_df.shape[0]
+    
     
 
     for e in range(episode_count + 1):
